@@ -1,0 +1,53 @@
+# =========================
+# Operating System Files
+# =========================
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# =========================
+# Python
+# =========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# =========================
+# Environments & Secrets
+# =========================
+# Conda / Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Secrets (NEVER COMMIT THESE)
+secrets.json
+.netrc
+
+# =========================
+# IDEs and Editors
+# =========================
+# VS Code
+.vscode/
+
+# Jupyter Notebook (Just in case you use it)
+.ipynb_checkpoints
