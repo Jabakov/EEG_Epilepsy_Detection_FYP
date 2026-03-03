@@ -51,3 +51,12 @@ secrets.json
 
 # Jupyter Notebook (Just in case you use it)
 .ipynb_checkpoints
+
+# =========================
+# Data and Datasets
+# =========================
+# Ignore the main dataset folder
+chbmit_dataset/
+
+# Ignore all EDF files anywhere in the project just to be safe
+*.edf
