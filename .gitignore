@@ -60,3 +60,4 @@ chbmit_dataset/
 
 # Ignore all EDF files anywhere in the project just to be safe
 *.edf
+*.csv

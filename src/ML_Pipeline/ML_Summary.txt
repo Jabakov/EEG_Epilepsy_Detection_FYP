@@ -1,0 +1,100 @@
+=============================================================================
+EEG SEIZURE DETECTION: GENERALISED MACHINE LEARNING PIPELINE
+=============================================================================
+
+PROJECT OVERVIEW:
+This pipeline represents a complete Machine Learning architecture designed to 
+detect epileptic seizures from continuous EEG recordings (CHB-MIT dataset). 
+It functions as a "Generalised Seizure Detection System," meaning it is 
+engineered to detect seizures in completely unseen patients without requiring 
+patient-specific retraining.
+
+The architecture is divided into six distinct chronological scripts:
+
+-----------------------------------------------------------------------------
+PHASE 0: PRE-EXTRACTION PARAMETER TUNING (ML_Train_Optimise_vmd_k.py)
+-----------------------------------------------------------------------------
+Target: Randomly selected CHB-MIT Seizure Files
+Goal: Mathematically justify the optimal 'K' (number of IMFs) for VMD.
+
+1. Automated Parsing: Scans the dataset, finds a patient with a confirmed 
+   seizure, and isolates chronological safe (normal) and seizure epochs.
+2. Mode Mixing Prevention: Evaluates signal decomposition from K=2 to K=10. It 
+   calculates the centre frequencies of the resulting Intrinsic Mode Functions (IMFs).
+3. Overlap Threshold: If the distance between two frequencies falls below 2.0Hz, 
+   the algorithm determines that 'mode mixing' has occurred and steps K down.
+4. Empirical Output: Averages the optimal K across both chaotic seizure states 
+   and normal baseline states to output a hardcoded K value (e.g., K=8) for the 
+   global extraction pipeline.
+   
+-----------------------------------------------------------------------------
+PHASE 1: TRAINING DATA EXTRACTION (ML_Train_Processing.py)
+-----------------------------------------------------------------------------
+Target: Patients 01 to 20 (The "Knowledge Base")
+Goal: Extract and balance mathematical representations of brainwaves.
+
+1. Signal Processing: Raw .edf files are filtered (60Hz Notch, 1-40Hz Bandpass) 
+   and segmented into 2-second epochs.
+2. Channel Selection: Strictly enforced 8-channel bipolar montage (FP1-F7, T7-P7, etc.).
+3. Feature Extraction: Each channel is decomposed into 8 Intrinsic Mode Functions 
+   (IMFs) using Variational Mode Decomposition (VMD). For each IMF, Sample, Fuzzy, 
+   and Permutation Entropy are calculated (192 total features per epoch).
+4. Patient Normalisation: To account for differing baseline brain chemistry, features 
+   are Z-score scaled (StandardScaler) strictly on a per-patient basis.
+5. Class Balancing: To avoid the "Accuracy Paradox" of highly imbalanced medical data, 
+   normal epochs are randomly undersampled to create a strict 1:3 (Seizure:Normal) ratio.
+
+-----------------------------------------------------------------------------
+PHASE 2: FEATURE OPTIMISATION (ML_Train_ParticleSwarm.py)
+-----------------------------------------------------------------------------
+Target: generalised_training_subset.csv
+Goal: Erase mathematical noise and prevent model overfitting.
+
+1. Swarm Intelligence: A Binary Particle Swarm Optimisation (BPSO) algorithm is 
+   deployed with Time-Varying Acceleration Coefficients (TVAC) and genetic mutation.
+2. Objective Function: Thousands of feature masks are evaluated using a lightweight 
+   Random Forest (10 trees), scored strictly on Macro F1-Score.
+3. Dimensionality Reduction: The Swarm successfully identified that 50% of the VMD 
+   features were noise, reducing the feature space from 192 down to an optimal 96.
+
+-----------------------------------------------------------------------------
+PHASE 3: CLASSIFIER TRAINING (ML_Train_Classifier.py)
+-----------------------------------------------------------------------------
+Target: generalised_training_subset.csv + The BPSO Mask
+Goal: Train the final model.
+
+1. Mask Application: The 96-feature winning mask is applied to the training matrix.
+2. Model Instantiation: A Random Forest Classifier is built using 100 trees and 
+   balanced class weights to ensure high sensitivity to rare seizure events.
+3. Export: The fully trained model is exported as 'chb_master_model.pkl'.
+
+-----------------------------------------------------------------------------
+PHASE 4: CLINICAL TEST EXTRACTION (ML_Test_Processing.py)
+-----------------------------------------------------------------------------
+Target: Patients 21 to 24 (The "Unseen Holdout Group")
+Goal: Simulate continuous unseen patient data.
+
+1. Air-Gapped Processing: Extracts data using the exact same VMD and Entropy 
+   math as Phase 1, but strictly for unseen patients.
+2. Chronological Preservation: Extracts 100% of the epochs in perfect temporal 
+   order (no shuffling, no 1:3 balancing).
+3. Boundary Tagging: Appends the source 'Filename' to every row to prevent 
+   downstream filters from bleeding across different clinical recording sessions.
+
+-----------------------------------------------------------------------------
+PHASE 5: INFERENCE & TUNING (ML_Test.py)
+-----------------------------------------------------------------------------
+Target: generalised_testing_continuous.csv + chb_master_model.pkl
+Goal: Maximise early onset detection while silencing False Alarms.
+
+1. Rapid Inference: The trained model predicts seizure probabilities across 
+   all chronological test epochs.
+2. Probability Thresholding: The default 50% confidence threshold is lowered 
+   (e.g., to 40%) to aggressively catch early seizure onset chaos.
+3. Temporal Median Filtering: A rolling median filter (e.g., kernel=5) evaluates 
+   a moving 10-second window. This successfully erases isolated False Positives 
+   caused by patient movement or eye blinks.
+
+=============================================================================
+END OF PIPELINE
+=============================================================================

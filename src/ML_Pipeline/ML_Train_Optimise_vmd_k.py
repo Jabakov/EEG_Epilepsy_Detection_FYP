@@ -58,7 +58,7 @@ def get_random_seizure_file(dataset_path):
     raise FileNotFoundError("Could not find any valid seizure files in the dataset folder.")
 
 # ========================================== 2. VMD OPTIMISATION ALGORITHM ==========================================
-def find_optimal_k(signal, fs, max_k=8, freq_threshold_hz=2.0):
+def find_optimal_k(signal, fs, max_k=10, freq_threshold_hz=2.0):
     """Finds the optimal K value by ensuring modes don't split too closely."""
     alpha, tau, DC, init, tol = 2000, 0.0, 0, 1, 1e-7
     optimal_k = 2  
