@@ -76,7 +76,7 @@ def process_single_epoch(epoch_idx, epoch_data, epoch_start, epoch_end, seizures
     num_channels = epoch_data.shape[0]
     for ch_idx in range(num_channels):
         signal = epoch_data[ch_idx, :]
-        u = VMD(signal, alpha, tau, K, DC, init, tol)
+        u, u_hat, omega= VMD(signal, alpha, tau, K, DC, init, tol)
         
         for mode_idx in range(K):
             imf = u[mode_idx]
